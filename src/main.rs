@@ -32,12 +32,17 @@ fn main() {
         collection.push(vec![i]);
     }
 
-    // read each line, one at a time, in for loop
-    // but only if we have more lines to read (m)
-    for _ in 0..m {
-        // get next line
-        let line = lines.next().unwrap();
+    // get all lines in one go until EOF
+    let lines = lines.collect::<Vec<_>>();
 
+    // check that we have the correct number of lines
+    if lines.len() != m as usize {
+        eprintln!("incorrect number of lines");
+        exit(1);
+    }
+
+    // loop through all lines
+    for line in lines {
         // split line into two integers
         let mut line = line.split_whitespace();
         let op: u8 = line.next().unwrap().parse().unwrap(); // operation to perform
