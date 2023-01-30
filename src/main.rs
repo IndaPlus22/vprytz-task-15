@@ -32,11 +32,6 @@ fn main() {
         collection.push(vec![i]);
     }
 
-    // print it
-    eprintln!("collection: {:?}", collection);
-
-    eprintln!("we got n: {} and m: {}", n, m);
-
     // read each line, one at a time, in for loop
     // but only if we have more lines to read (m)
     for _ in 0..m {
@@ -58,7 +53,6 @@ fn main() {
         match op {
             1 => {
                 // union sets in collection containing p and q
-                eprintln!("union sets containing {} and {}", p, q);
 
                 // find index of set containing p
                 let mut p_index = 0;
@@ -87,13 +81,9 @@ fn main() {
                 let mut q_set = collection[q_index].clone();
                 collection[p_index].append(&mut q_set);
                 collection.remove(q_index);
-
-                // print it
-                eprintln!("collection: {:?}", collection);
             }
             2 => {
                 // move p to the set containing q
-                eprintln!("move {} to set containing {}", p, q);
 
                 // find index of set containing p
                 let mut p_index = 0;
@@ -123,16 +113,9 @@ fn main() {
 
                 // add p to set containing q
                 collection[q_index].push(p);
-
-                // print it
-                eprintln!("collection: {:?}", collection);
             }
             3 => {
                 // return the number of elements and the sum of elements in the set containing p
-                eprintln!(
-                    "return number of elements and sum of elements in set containing {}",
-                    p
-                );
 
                 // find index of set containing p
                 let mut p_index = 0;
@@ -142,9 +125,6 @@ fn main() {
                         break;
                     }
                 }
-
-                // print it
-                eprintln!("collection: {:?}", collection);
 
                 // print number of elements and sum of elements in set containing p
                 println!(
@@ -159,7 +139,4 @@ fn main() {
             }
         }
     }
-
-    eprintln!("Kattis skips this comment!");
-    //println!("Print to standard output.");
 }
