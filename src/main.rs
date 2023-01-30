@@ -39,7 +39,10 @@ fn main() {
 
     // read each line, one at a time, in for loop
     // but only if we have more lines to read (m)
-    for line in lines {
+    for _ in 0..m {
+        // get next line
+        let line = lines.next().unwrap();
+
         // split line into two integers
         let mut line = line.split_whitespace();
         let op: u8 = line.next().unwrap().parse().unwrap(); // operation to perform
