@@ -9,6 +9,41 @@ use std::io;
 use std::io::prelude::*;
 use std::process::exit;
 
+fn find(x: u32, parent: &mut Vec<u32>) -> u32 {
+    if parent[x as usize - 1] == x {
+        return x;
+    }
+    let p = find(parent[x as usize - 1], parent);
+    parent[x as usize - 1] = p;
+    return p;
+}
+
+fn union(x: u32, y: u32, parent: &mut Vec<u32>) -> () {
+    let y_root = find(y, parent);
+    parent[y_root as usize - 1] = find(x, parent);
+}
+
+fn sum(x: u32, parent: &mut Vec<u32>) -> u32 {
+    let mut sum = 0;
+    for i in 1..parent.len() {
+        if find(i as u32, parent) == x {
+            sum += i as u32;
+        }
+    }
+    return sum;
+}
+
+fn num_elements(x: u32, parent: &mut Vec<u32>) -> u32 {
+    // number of elements in set containing x
+    let mut num = 0;
+    for i in 1..parent.len() {
+        if find(i as u32, parent) == x {
+            num += 1;
+        }
+    }
+    return num;
+}
+
 /// Kattis calls main function to run your solution.
 fn main() {
     // get standard input stream
@@ -24,12 +59,9 @@ fn main() {
     let n: u32 = line.next().unwrap().parse().unwrap(); // number of integers to start with in our collection
     let m: u32 = line.next().unwrap().parse().unwrap(); // number of operations to perform
 
-    // initialize a set, an array of arrays, where each array is a set
-    // initially, each array in the big array just contains one integer
-    // the big array will at start look like: collection = [[1], [2], [3], [4], [5], [6], [7], [8], ... [n]]
-    let mut collection: Vec<Vec<u32>> = Vec::new();
+    let mut parent: Vec<u32> = Vec::new();
     for i in 1..n + 1 {
-        collection.push(vec![i]);
+        parent.push(i);
     }
 
     // get all lines in one go until EOF
@@ -58,85 +90,21 @@ fn main() {
         match op {
             1 => {
                 // union sets in collection containing p and q
-
-                // find index of set containing p
-                let mut p_index = 0;
-                for i in 0..collection.len() {
-                    if collection[i].contains(&p) {
-                        p_index = i;
-                        break;
-                    }
-                }
-
-                // find index of set containing q
-                let mut q_index = 0;
-                for i in 0..collection.len() {
-                    if collection[i].contains(&q) {
-                        q_index = i;
-                        break;
-                    }
-                }
-
-                // if p and q are in the same set, do nothing
-                if p_index == q_index {
-                    continue;
-                }
-
-                // union the two sets
-                let mut q_set = collection[q_index].clone();
-                collection[p_index].append(&mut q_set);
-                collection.remove(q_index);
+                union(p, q, &mut parent);
             }
             2 => {
                 // move p to the set containing q
-
-                // find index of set containing p
-                let mut p_index = 0;
-                for i in 0..collection.len() {
-                    if collection[i].contains(&p) {
-                        p_index = i;
-                        break;
-                    }
-                }
-
-                // find index of set containing q
-                let mut q_index = 0;
-                for i in 0..collection.len() {
-                    if collection[i].contains(&q) {
-                        q_index = i;
-                        break;
-                    }
-                }
-
-                // if p and q are in the same set, do nothing
-                if p_index == q_index {
-                    continue;
-                }
-
-                // remove p from set containing p
-                collection[p_index].retain(|&x| x != p);
-
-                // add p to set containing q
-                collection[q_index].push(p);
+                let p_index = find(p, &mut parent) as usize;
+                let q_index = find(q, &mut parent) as usize;
+                parent[p_index] = q_index as u32;
             }
             3 => {
                 // return the number of elements and the sum of elements in the set containing p
-
-                // find index of set containing p
-                let mut p_index = 0;
-                for i in 0..collection.len() {
-                    if collection[i].contains(&p) {
-                        p_index = i;
-                        break;
-                    }
-                }
+                let sum = sum(p, &mut parent);
+                let num_elements = num_elements(p, &mut parent);
 
                 // print number of elements and sum of elements in set containing p
-                println!(
-                    "{} {}",
-                    collection[p_index].len(),
-                    collection[p_index].iter().sum::<u32>()
-                );
+                println!("{} {}", num_elements.to_string(), sum.to_string());
             }
             _ => {
                 eprintln!("unknown operation");
