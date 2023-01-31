@@ -10,24 +10,30 @@ use std::io::prelude::*;
 use std::process::exit;
 
 fn find(x: u32, parent: &mut Vec<u32>) -> u32 {
-    if parent[x as usize - 1] == x {
+    if parent[x as usize] != x {
+        return find(parent[x as usize], parent);
+    } else {
         return x;
     }
-    let p = find(parent[x as usize - 1], parent);
-    parent[x as usize - 1] = p;
-    return p;
 }
 
 fn union(x: u32, y: u32, parent: &mut Vec<u32>) -> () {
     let y_root = find(y, parent);
-    parent[y_root as usize - 1] = find(x, parent);
+    parent[y_root as usize] = find(x, parent);
 }
 
 fn sum(x: u32, parent: &mut Vec<u32>) -> u32 {
     let mut sum = 0;
-    for i in 1..parent.len() {
-        if find(i as u32, parent) == x {
-            sum += i as u32;
+    let x_parent = find(x, parent);
+    println!("x_parent: {}", x_parent);
+
+    for i in 0..parent.len() {
+        let i_parent = find(i as u32, parent);
+
+        if i_parent == x_parent {
+            println!("i: {}, i_parent: {}", i, i_parent);
+            println!("adding {} to sum", i + 1);
+            sum += (i + 1) as u32;
         }
     }
     return sum;
@@ -36,7 +42,7 @@ fn sum(x: u32, parent: &mut Vec<u32>) -> u32 {
 fn num_elements(x: u32, parent: &mut Vec<u32>) -> u32 {
     // number of elements in set containing x
     let mut num = 0;
-    for i in 1..parent.len() {
+    for i in 0..parent.len() {
         if find(i as u32, parent) == x {
             num += 1;
         }
@@ -60,7 +66,7 @@ fn main() {
     let m: u32 = line.next().unwrap().parse().unwrap(); // number of operations to perform
 
     let mut parent: Vec<u32> = Vec::new();
-    for i in 1..n + 1 {
+    for i in 0..n {
         parent.push(i);
     }
 
@@ -78,12 +84,14 @@ fn main() {
         // split line into two integers
         let mut line = line.split_whitespace();
         let op: u8 = line.next().unwrap().parse().unwrap(); // operation to perform
-        let p: u32 = line.next().unwrap().parse().unwrap(); // first integer
+        let mut p: u32 = line.next().unwrap().parse().unwrap(); // first integer, but minus 1 to get index (because reasons)
+        p = p - 1;
         let mut q: u32 = 0;
 
         // if op is 3, we only have one integer
         if op != 3 {
             q = line.next().unwrap().parse().unwrap(); // second integer
+            q = q - 1;
         }
 
         // perform operation
@@ -91,12 +99,18 @@ fn main() {
             1 => {
                 // union sets in collection containing p and q
                 union(p, q, &mut parent);
+
+                // print parent!
+                println!("{:?}", parent);
             }
             2 => {
                 // move p to the set containing q
                 let p_index = find(p, &mut parent) as usize;
                 let q_index = find(q, &mut parent) as usize;
                 parent[p_index] = q_index as u32;
+
+                // print parent!
+                println!("{:?}", parent);
             }
             3 => {
                 // return the number of elements and the sum of elements in the set containing p
