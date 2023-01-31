@@ -1,6 +1,5 @@
 /***
- * Based on Template for Rust solutions to Kattis problems
- * By: Viola Söderlund <violaso@kth.se>
+ * Based on Template for Rust solutions to Kattis problems by: Viola Söderlund <violaso@kth.se>
  * See: https://open.kattis.com/help/rust
  * Author: Vilhelm Prytz <vilhelm@prytznet.se>
  */
@@ -15,35 +14,48 @@ fn find(x: u32, parent: &mut Vec<u32>) -> u32 {
     } else {
         return x;
     }
+
+    // do same thing as aboe but iterative
+    // ```rust
+    // let mut x = x;
+    // while parent[x as usize] != x {
+    //  println!("x: {}, parent[x]: {}", x, parent[x as usize]);
+    //  x = parent[x as usize];
+    // }
+    // ```
+    //
+    // return x;
 }
 
 fn union(x: u32, y: u32, parent: &mut Vec<u32>) -> () {
     let y_root = find(y, parent);
-    parent[y_root as usize] = find(x, parent);
+    let x_root = find(x, parent);
+    parent[y_root as usize] = x_root;
 }
 
 fn sum(x: u32, parent: &mut Vec<u32>) -> u32 {
     let mut sum = 0;
-    let x_parent = find(x, parent);
-    println!("x_parent: {}", x_parent);
+    let x_root = find(x, parent);
 
-    for i in 0..parent.len() {
-        let i_parent = find(i as u32, parent);
+    for i in 1..parent.len() {
+        let i_root = find(i as u32, parent);
 
-        if i_parent == x_parent {
-            println!("i: {}, i_parent: {}", i, i_parent);
-            println!("adding {} to sum", i + 1);
-            sum += (i + 1) as u32;
+        println!("i: {}, i_root: {}, x_root: {}", i as u32, i_root, x_root);
+
+        if i_root == x_root {
+            sum += i as u32;
         }
     }
     return sum;
 }
 
 fn num_elements(x: u32, parent: &mut Vec<u32>) -> u32 {
+    let x_root = find(x, parent);
+
     // number of elements in set containing x
     let mut num = 0;
     for i in 0..parent.len() {
-        if find(i as u32, parent) == x {
+        if parent[i] == x_root {
             num += 1;
         }
     }
@@ -66,7 +78,7 @@ fn main() {
     let m: u32 = line.next().unwrap().parse().unwrap(); // number of operations to perform
 
     let mut parent: Vec<u32> = Vec::new();
-    for i in 0..n {
+    for i in 0..n + 1 {
         parent.push(i);
     }
 
@@ -85,13 +97,13 @@ fn main() {
         let mut line = line.split_whitespace();
         let op: u8 = line.next().unwrap().parse().unwrap(); // operation to perform
         let mut p: u32 = line.next().unwrap().parse().unwrap(); // first integer, but minus 1 to get index (because reasons)
-        p = p - 1;
+        p = p;
         let mut q: u32 = 0;
 
         // if op is 3, we only have one integer
         if op != 3 {
             q = line.next().unwrap().parse().unwrap(); // second integer
-            q = q - 1;
+            q = q;
         }
 
         // perform operation
@@ -105,9 +117,8 @@ fn main() {
             }
             2 => {
                 // move p to the set containing q
-                let p_index = find(p, &mut parent) as usize;
-                let q_index = find(q, &mut parent) as usize;
-                parent[p_index] = q_index as u32;
+                let q_root = find(q, &mut parent);
+                parent[p as usize] = q_root;
 
                 // print parent!
                 println!("{:?}", parent);
